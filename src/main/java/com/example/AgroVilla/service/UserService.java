@@ -123,4 +123,13 @@ public class UserService {
     public List<User> getUsersByRoleAndStatus(Role role, SellerStatus sellerStatus) {
         return userRepository.findByRoleAndSellerStatus(role, sellerStatus);
     }
+
+    public User updateSellerStatus(Long id, SellerStatus status) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        user.setSellerStatus(status); // update status
+        return userRepository.save(user); // save to DB
+    }
+
 }

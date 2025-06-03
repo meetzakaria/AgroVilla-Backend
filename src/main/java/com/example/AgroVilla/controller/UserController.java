@@ -58,6 +58,19 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<UserResponse> updateSellerStatus(
+            @PathVariable Long id,
+            @RequestParam SellerStatus status) {
+        try {
+            User updatedUser = userService.updateSellerStatus(id, status);
+            return ResponseEntity.ok(convertToDTO(updatedUser));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     @GetMapping("/roleAndStatus")
     public List<UserResponse> getUsersByRoleAndStatus(@RequestParam Role role, @RequestParam SellerStatus sellerStatus) {
         List<User> usersByRoleAndStatus = userService.getUsersByRoleAndStatus(role, sellerStatus);
