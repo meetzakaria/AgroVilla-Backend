@@ -4,7 +4,9 @@ import com.example.AgroVilla.dto.ProductForm;
 import com.example.AgroVilla.model.Product;
 import com.example.AgroVilla.model.User;
 import com.example.AgroVilla.repository.ProductRepository;
+import com.example.AgroVilla.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,23 +18,13 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    public ResponseEntity<String> saveUser(@RequestBody User user) {
-        // আপনার সার্ভিস কল বা লজিক এখানে
-        return ResponseEntity.ok("User saved successfully");
-    }
-
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductService productService;
 
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadFile(
-            @RequestPart("file") MultipartFile file,
-            @RequestPart("description") String description) {
-        // ফাইল প্রসেসিং
-        return ResponseEntity.ok("File uploaded successfully!");
-    }
 
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> addProduct(@ModelAttribute ProductForm form) {
@@ -59,9 +51,6 @@ public class ProductController {
     }
 
 
-
-
-
     public ResponseEntity<Product> addProduct(
             @RequestParam("name") String name,
             @RequestParam("description") String description,
@@ -86,20 +75,75 @@ public class ProductController {
         }
     }
 
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadFile(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("description") String description) {
+        // ফাইল প্রসেসিং
+        return ResponseEntity.ok("File uploaded successfully!");
+    }
+
     @GetMapping
-    public ResponseEntity<List<Product>> getAll() {
+    public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productRepository.findAll());
     }
 
     @GetMapping("/category/{category}")
     public ResponseEntity<List<Product>> getByCategory(@PathVariable String category) {
-        return ResponseEntity.ok(productRepository.findByCategory(category));
+        return ResponseEntity.ok(productRepository.findByCategoryIgnoreCase(category));
     }
 
-    @GetMapping("/products/category/{category}")
-    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category) {
-        List<Product> products = productRepository.findByCategoryIgnoreCase(category);
-        return ResponseEntity.ok(products);
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String keyword) {
+        return ResponseEntity.ok(productService.searchProducts(keyword));
     }
 
+    @PostMapping
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        Product savedProduct = productService.addProduct(product); // ✅ service call
+        return ResponseEntity.ok(savedProduct);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(
+            @PathVariable Long id,
+            @RequestBody Product product
+    ) {
+        try {
+            Product updated = productService.updateProduct(id, product);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.noContent().build(); // 204
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
 }
+
+
+//
+//
+//    @GetMapping
+//    public ResponseEntity<List<Product>> getAll() {
+//        return ResponseEntity.ok(productRepository.findAll());
+//    }
+//
+//    @GetMapping("/category/{category}")
+//    public ResponseEntity<List<Product>> getByCategory(@PathVariable String category) {
+//        return ResponseEntity.ok(productRepository.findByCategory(category));
+//    }
+//
+//    @GetMapping("/products/category/{category}")
+//    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable String category) {
+//        List<Product> products = productRepository.findByCategoryIgnoreCase(category);
+//        return ResponseEntity.ok(products);
+//    }
