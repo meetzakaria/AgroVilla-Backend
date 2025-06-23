@@ -2,6 +2,7 @@ package com.example.AgroVilla.service;
 
 import com.example.AgroVilla.constants.Role;
 import com.example.AgroVilla.constants.SellerStatus;
+import com.example.AgroVilla.dto.UserUpdateRequest;
 import com.example.AgroVilla.model.CustomUserDetails;
 import com.example.AgroVilla.model.User;
 import com.example.AgroVilla.repository.UserRepository;
@@ -11,7 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,5 +134,20 @@ public class UserService {
         user.setSellerStatus(status); // update status
         return userRepository.save(user); // save to DB
     }
+
+    public User updateProfile(Long userId, UserUpdateRequest updateRequest, MultipartFile image) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setName(updateRequest.name());
+        user.setPhoneNumber(updateRequest.phoneNumber());
+
+        if (image != null && !image.isEmpty()) {
+            user.setProfileImage(image.getBytes());
+        }
+
+        return userRepository.save(user);
+    }
+
 
 }

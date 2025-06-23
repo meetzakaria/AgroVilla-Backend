@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -164,4 +165,33 @@ public class UserController {
         dto.setSellerStatus(user.getSellerStatus());
         return dto;
     }
+
+    @PutMapping("/me")
+    public ResponseEntity<?> updateProfile(
+            Authentication authentication,
+            @RequestPart("user") UserUpdateRequest userUpdateRequest,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        try {
+            User currentUser = userService.getCurrentUser(authentication);
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            User updated = userService.updateProfile(currentUser.getId(), userUpdateRequest, image);
+            return ResponseEntity.ok(convertToDTO(updated));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/me/details")
+    public ResponseEntity<UserResponse> getOwnProfile(Authentication authentication) {
+        User currentUser = userService.getCurrentUser(authentication);
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(convertToDTO(currentUser));
+    }
+
+
 }

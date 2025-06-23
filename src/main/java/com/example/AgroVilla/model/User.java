@@ -5,7 +5,6 @@ import com.example.AgroVilla.constants.Role;
 import com.example.AgroVilla.constants.SellerStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -41,6 +40,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SellerStatus sellerStatus;
+
+    @Lob
+    @Column(name = "profile_image")
+    private byte[] profileImage;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
