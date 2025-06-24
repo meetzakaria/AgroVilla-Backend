@@ -25,10 +25,10 @@ public class ProductService {
         this.skuGeneratorService = skuGeneratorService;
     }
 
-    public Product addProduct(Product product) {
+    public Product addSkuToProduct(Product product) {
         String sku = skuGeneratorService.generateSKU(product.getCategory());
         product.setSku(sku);
-        return productRepository.save(product);
+        return product;
     }
 
     public List<Product> searchProducts(String keyword) {
@@ -58,9 +58,6 @@ public class ProductService {
         }
         productRepository.deleteById(id);
     }
-
-
-
 
 
 }

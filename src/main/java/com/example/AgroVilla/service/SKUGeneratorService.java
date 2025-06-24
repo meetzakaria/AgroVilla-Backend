@@ -13,11 +13,11 @@ public class SKUGeneratorService {
     }
 
     public String generateSKU(String category) {
-        System.out.println("✅ SKUGenerator Called with category: " + category);
+        System.out.println("✅ SKUGenerator Called with category: " + category); // Fertilizers, fertilizers
 
-        String prefix = switch (category.toLowerCase()) {
+        String prefix = switch (category) {
             case "Seeds" -> "SEED";
-            case "Fertilizer" -> "FERT";
+            case "Fertilizers" -> "FERT";
             case "Equipment" -> "EQPM";
             case "Machinery" -> "MACH";
             case "Saplings" -> "SAPL";
@@ -25,10 +25,10 @@ public class SKUGeneratorService {
         };
 
         Long count = productRepository.countByCategoryIgnoreCase(category);
-        System.out.println("✅ Count found: " + count);
+        System.out.println("Count found: " + count);
 
         String sku = prefix + "-" + String.format("%03d", count + 1);
-        System.out.println("✅ Final SKU: " + sku);
+        System.out.println("Final SKU: " + sku);
 
         return sku;
     }

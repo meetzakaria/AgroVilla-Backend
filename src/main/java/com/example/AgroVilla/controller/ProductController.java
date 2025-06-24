@@ -2,7 +2,6 @@ package com.example.AgroVilla.controller;
 
 import com.example.AgroVilla.dto.ProductForm;
 import com.example.AgroVilla.model.Product;
-import com.example.AgroVilla.model.User;
 import com.example.AgroVilla.repository.ProductRepository;
 import com.example.AgroVilla.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ public class ProductController {
     private ProductService productService;
 
 
-
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> addProduct(@ModelAttribute ProductForm form) {
         try {
@@ -37,36 +35,8 @@ public class ProductController {
             product.setCategory(form.getCategory());
             product.setImage(form.getImage().getBytes());
 
-            Product saved = productRepository.save(product);
-            return ResponseEntity.ok(saved);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @PostMapping(value = "/api/products/add", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
-        // প্রোডাক্ট সেভ করুন
-        return ResponseEntity.ok(product);
-    }
-
-
-    public ResponseEntity<Product> addProduct(
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("price") Double price,
-            @RequestParam("quantity") Integer quantity,
-            @RequestParam("category") String category,
-            @RequestParam("image") MultipartFile imageFile
-    ) {
-        try {
-            Product product = new Product();
-            product.setName(name);
-            product.setDescription(description);
-            product.setPrice(price);
-            product.setQuantity(quantity);
-            product.setCategory(category);
-            product.setImage(imageFile.getBytes());
+            // Add sku to product
+            productService.addSkuToProduct(product);
 
             Product saved = productRepository.save(product);
             return ResponseEntity.ok(saved);
@@ -74,6 +44,37 @@ public class ProductController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+//    @PostMapping(value = "/api/products/add", consumes = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
+//        // প্রোডাক্ট সেভ করুন
+//        return ResponseEntity.ok(product);
+//    }
+//
+//
+//    public ResponseEntity<Product> addProduct(
+//            @RequestParam("name") String name,
+//            @RequestParam("description") String description,
+//            @RequestParam("price") Double price,
+//            @RequestParam("quantity") Integer quantity,
+//            @RequestParam("category") String category,
+//            @RequestParam("image") MultipartFile imageFile
+//    ) {
+//        try {
+//            Product product = new Product();
+//            product.setName(name);
+//            product.setDescription(description);
+//            product.setPrice(price);
+//            product.setQuantity(quantity);
+//            product.setCategory(category);
+//            product.setImage(imageFile.getBytes());
+//
+//            Product saved = productRepository.save(product);
+//            return ResponseEntity.ok(saved);
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().build();
+//        }
+//    }
 
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -101,7 +102,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product savedProduct = productService.addProduct(product); // ✅ service call
+        Product savedProduct = productService.addSkuToProduct(product); // ✅ service call
         return ResponseEntity.ok(savedProduct);
     }
 
