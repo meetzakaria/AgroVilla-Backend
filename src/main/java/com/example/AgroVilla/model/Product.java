@@ -23,10 +23,8 @@ public class Product {
     private String category;
 
     @Lob
-    @Column(name = "image", columnDefinition = "BLOB")
-    private byte[] image;
+    @Column(columnDefinition = "TEXT")
+    private String image; //Base64
 
-    @ManyToOne
-    private User seller;
 
 }
